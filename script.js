@@ -116,13 +116,3 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
   const name = document.getElementById("nameInput").value;
   addBotMessage(`Welcome ${name}. Select a location on the map to begin.`);
 });
-
-
-const mapModal = document.getElementById("mapModal");
-document.getElementById("openMapBtn").addEventListener("click", () => {
-  mapModal.classList.add("active");
-  setTimeout(() => map.invalidateSize(), 50);
-});
-document.getElementById("closeMapBtn").addEventListener("click", () => {
-  mapModal.classList.remove("active");
-});

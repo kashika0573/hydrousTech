@@ -23,16 +23,6 @@
     </div>
   </div>
 
-  <div id="mapModal" class="overlay" aria-modal="true">
-    <div class="map-modal-card">
-      <div class="map-modal-header">
-        <h3>Regional Water Map</h3>
-        <button id="closeMapBtn" type="button">Close Map</button>
-      </div>
-      <div id="map"></div>
-    </div>
-  </div>
-
   <header class="app-header">
     <div>
       <h2>Hydrous Tech</h2>
@@ -42,17 +32,16 @@
   </header>
 
   <main class="layout">
-    <section class="card actions-panel">
-      <h3>Quick Actions</h3>
-      <p>Open the full map in a separate panel so it does not block the rest of your dashboard.</p>
-      <button id="openMapBtn" type="button">Open Map</button>
+    <section class="map-panel">
+      <h3>Regional Water Map</h3>
+      <div id="map"></div>
     </section>
 
     <section class="info-panel">
       <div class="card" id="locationCard">
         <h3>Location Insights</h3>
-        <p>Click <strong>Open Map</strong>, then select a marker to view WAI details and prediction.</p>
-      </div>
+        <p>Click a marker on the map to view WAI details and prediction.</p>
+      </div> 
       <div class="card" id="chatbotCard">
         <h3>Hydrous Assistant</h3>
         <div id="chatLog" class="chat-log"></div>
