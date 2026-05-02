@@ -1,118 +1,27 @@
-const locations = [
-  { name: "Tracy, CA", lat: 37.7397, lng: -121.4252, snowpack: 0.35, rainfall: 0.38, reservoir: 0.42, temp: 89 },
-  { name: "Sacramento, CA", lat: 38.5816, lng: -121.4944, snowpack: 0.55, rainfall: 0.52, reservoir: 0.61, temp: 84 },
-  { name: "Fresno, CA", lat: 36.7378, lng: -119.7871, snowpack: 0.28, rainfall: 0.31, reservoir: 0.45, temp: 95 },
-  { name: "Bakersfield, CA", lat: 35.3733, lng: -119.0187, snowpack: 0.24, rainfall: 0.29, reservoir: 0.37, temp: 97 },
-  { name: "San Jose, CA", lat: 37.3382, lng: -121.8863, snowpack: 0.49, rainfall: 0.5, reservoir: 0.58, temp: 82 }
-];
-
-const weights = { snowpack: 0.3, rainfall: 0.3, reservoir: 0.4 };
-let selectedLocation = null;
-
-function calcWai(d) {
-  return Math.round((d.snowpack * weights.snowpack + d.rainfall * weights.rainfall + d.reservoir * weights.reservoir) * 100);
+const DATASET_URL='https://scoringapi.h2ohackathon.org/Challenge/json';
+const fallback=[{name:'Tracy, CA',lat:37.7397,lng:-121.4252,snowpack:65,rainfall:105,reservoir:72,temp:89},{name:'Sacramento, CA',lat:38.58,lng:-121.49,snowpack:78,rainfall:96,reservoir:76,temp:84},{name:'Fresno, CA',lat:36.73,lng:-119.78,snowpack:62,rainfall:88,reservoir:69,temp:95}];
+let selected=null,data=[]; const w={snowpack:.3,rainfall:.3,reservoir:.4};
+let map=null, layer=null;
+function initMap(){
+  if(map) return;
+  map=L.map('map').setView([37.25,-120.4],6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+  layer=L.layerGroup().addTo(map);
 }
-
-function predictWai(current) {
-  const weeklyDrop = current < 45 ? 3 : current < 70 ? 2 : 1;
-  return Math.max(0, current - Math.round((weeklyDrop * 30) / 7));
-}
-
-function statusClass(wai) {
-  if (wai >= 70) return "wai-safe";
-  if (wai >= 40) return "wai-warning";
-  return "wai-critical";
-}
-
-function riskLabel(wai) {
-  if (wai >= 70) return "Safe";
-  if (wai >= 40) return "Warning";
-  return "Critical";
-}
-
-const map = L.map("map").setView([37.25, -120.4], 6);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 18,
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
-
-locations.forEach((loc) => {
-  const wai = calcWai(loc);
-  const color = wai >= 70 ? "#31d96d" : wai >= 40 ? "#f7d74b" : "#ef5f5f";
-  const marker = L.circleMarker([loc.lat, loc.lng], {
-    radius: 10,
-    color,
-    fillColor: color,
-    fillOpacity: 0.92
-  }).addTo(map);
-
-  marker.bindTooltip(`${loc.name} • WAI ${wai}`, { direction: "top" });
-
-  marker.on("click", () => {
-    selectedLocation = { ...loc, wai, prediction: predictWai(wai) };
-    renderLocation();
-    addBotMessage(`${loc.name} selected. Ask me for explanation, advice, or health risk details.`);
-  });
-});
-
-function renderLocation() {
-  const card = document.getElementById("locationCard");
-  if (!selectedLocation) return;
-  const health = selectedLocation.wai < 40 && selectedLocation.temp > 90
-    ? "⚠️ High dehydration risk: low water availability + high heat can increase kidney stress and heat illness risk."
-    : "No acute heat-dehydration trigger at this moment.";
-
-  card.innerHTML = `
-    <h3>${selectedLocation.name}</h3>
-    <p><strong>WAI:</strong> <span class="${statusClass(selectedLocation.wai)}">${selectedLocation.wai} (${riskLabel(selectedLocation.wai)})</span></p>
-    <p><strong>30-day prediction:</strong> <span class="${statusClass(selectedLocation.prediction)}">${selectedLocation.prediction}</span></p>
-    <p><strong>Insight:</strong> Low rainfall and declining reservoir levels are the main stress drivers when WAI is low.</p>
-    <p><strong>Health Signal:</strong> ${health}</p>
-  `;
-}
-
-function addMessage(role, text) {
-  const wrap = document.getElementById("chatLog");
-  const p = document.createElement("p");
-  p.className = `chat-message ${role}`;
-  p.textContent = `${role === "user" ? "You" : "Hydrous Bot"}: ${text}`;
-  wrap.appendChild(p);
-  wrap.scrollTop = wrap.scrollHeight;
-}
-
-function addBotMessage(text) { addMessage("bot", text); }
-
-document.getElementById("chatForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const input = document.getElementById("chatInput");
-  const msg = input.value.trim();
-  if (!msg) return;
-  addMessage("user", msg);
-
-  const lower = msg.toLowerCase();
-  let reply = "I can explain WAI, give conservation advice, and assess dehydration risk.";
-
-  if (!selectedLocation) {
-    reply = "Please click a map location first so I can answer with local data.";
-  } else if (lower.includes("why") || lower.includes("red") || lower.includes("explain")) {
-    reply = `${selectedLocation.name} is ${riskLabel(selectedLocation.wai).toLowerCase()} because snowpack, rainfall, and reservoir levels combine to WAI ${selectedLocation.wai}.`;
-  } else if (lower.includes("advice") || lower.includes("what should i do") || lower.includes("conserve")) {
-    reply = "Reduce outdoor watering, fix leaks fast, run full laundry loads, and shift high-water use to cooler hours.";
-  } else if (lower.includes("danger") || lower.includes("health") || lower.includes("dehydration")) {
-    reply = selectedLocation.wai < 40
-      ? "Low water raises dehydration risk. Dehydration lowers blood volume, so heart rate can rise to maintain circulation (CO = HR × SV)."
-      : "Current risk is moderate. Stay hydrated and monitor heat alerts as conditions change.";
-  } else if (lower.includes("predict") || lower.includes("future")) {
-    reply = `Projected 30-day WAI for ${selectedLocation.name} is ${selectedLocation.prediction}, based on short-term trend decline.`;
-  }
-
-  addBotMessage(reply);
-  input.value = "";
-});
-
-document.getElementById("loginForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-  document.getElementById("loginScreen").classList.remove("active");
-  const name = document.getElementById("nameInput").value;
-  addBotMessage(`Welcome ${name}. Select a location on the map to begin.`);
-});
+const pct=v=>v>1?v:v*100,norm=v=>Math.max(0,Math.min(1,pct(v)/100)); const wai=d=>Math.round((norm(d.snowpack)*w.snowpack+norm(d.rainfall)*w.rainfall+norm(d.reservoir)*w.reservoir)*100); const pred=x=>Math.max(0,x-(x<45?13:x<70?9:4)); const cls=x=>x>=70?'wai-safe':x>=40?'wai-warning':'wai-critical'; const status=x=>x>=70?'Safe':x>=40?'Warning':'Critical';
+function adapt(r,i){const lat=Number(r.lat??r.latitude??r.y),lng=Number(r.lng??r.lon??r.longitude??r.x); if(!isFinite(lat)||!isFinite(lng)) return null; return {name:r.name??r.location??`Location ${i+1}`,lat,lng,snowpack:Number(r.snowpack??65),rainfall:Number(r.rainfall??100),reservoir:Number(r.reservoir??70),temp:Number(r.temp??88)};}
+async function load(){try{const r=await fetch(DATASET_URL); if(!r.ok) throw new Error(`HTTP ${r.status}`); const p=await r.json(); const arr=(Array.isArray(p)?p:p.data)||[]; const n=arr.map(adapt).filter(Boolean); if(!n.length) throw new Error('No rows'); return n;}catch(e){bot(`Live dataset unavailable (${e.message}). Using fallback.`); return fallback;}}
+function markers(rows){ if(!map) initMap(); layer.clearLayers(); rows.forEach(loc=>{const score=wai(loc),c=score>=70?'#31d96d':score>=40?'#f7d74b':'#ef5f5f'; const m=L.circleMarker([loc.lat,loc.lng],{radius:10,color:c,fillColor:c,fillOpacity:.92}).addTo(layer); m.bindTooltip(`${loc.name} • WAI ${score}`); m.on('click',()=>{selected={...loc,wai:score,prediction:pred(score)}; renderLocation(); setPage('overview'); bot(`${loc.name} selected.`);});}); tables();}
+function renderLocation(){if(!selected)return; document.getElementById('locationCard').innerHTML=`<h3>${selected.name}</h3><p><b>WAI:</b> <span class='${cls(selected.wai)}'>${selected.wai} (${status(selected.wai)})</span></p><p><b>Snowpack:</b> ${pct(selected.snowpack).toFixed(0)}% of April 1 avg</p><p><b>Precip:</b> ${pct(selected.rainfall).toFixed(0)}% of avg</p><p><b>Reservoir:</b> ${pct(selected.reservoir).toFixed(0)}% capacity</p><p><b>Forecast:</b> ${selected.prediction} in 30 days</p>`;}
+function tables(){const past=document.getElementById('pastTable'),present=document.getElementById('presentTable'),future=document.getElementById('futureTable'); past.innerHTML=present.innerHTML=future.innerHTML=''; data.forEach(d=>{const s=wai(d),f=pred(s); past.innerHTML+=`<tr><td>${d.name}</td><td class='${cls(s)}'>${Math.max(0,s-6)}</td><td>${pct(d.snowpack)-8}%</td><td>${pct(d.rainfall)-4}%</td><td>${pct(d.reservoir)-5}%</td></tr>`; present.innerHTML+=`<tr><td>${d.name}</td><td class='${cls(s)}'>${s}</td><td>${status(s)}</td><td>${s<40&&d.temp>90?'High dehydration risk':'Moderate'}</td></tr>`; future.innerHTML+=`<tr><td>${d.name}</td><td>${s}</td><td class='${cls(f)}'>${f}</td><td>${status(s)} → ${status(f)}</td></tr>`; });
+ document.getElementById('pastSummary').innerHTML='<p>Past tab estimates previous seasonal context from current indicators.</p>'; document.getElementById('presentSummary').innerHTML='<p>Present tab shows current score, status, and health signal.</p>'; document.getElementById('futureSummary').innerHTML='<p>Future tab provides 30-day projection and risk shift.</p>';}
+function add(role,t){const box=document.getElementById('locationCard');}
+function bot(t){const log=document.getElementById('helpBtn');}
+function answer(q){if(!selected) return 'Select a location first.'; q=q.toLowerCase(); if(q.includes('past'))return `Past estimate for ${selected.name}: WAI ${Math.max(0,selected.wai-6)}.`; if(q.includes('present'))return `Current WAI is ${selected.wai}.`; if(q.includes('future')||q.includes('forecast'))return `30-day WAI is ${selected.prediction}.`; if(q.includes('help'))return 'Use Past/Present/Future tabs plus map to make better water decisions.'; return `Status: ${status(selected.wai)}. Try asking past, present, or future.`;}
+function setPage(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(`page-${n}`).classList.add('active'); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===n));}
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>setPage(b.dataset.page)));
+document.getElementById('helpBtn').addEventListener('click',()=>setPage('help'));
+document.getElementById('openMapBtn').addEventListener('click',()=>{ if(!map) initMap(); document.getElementById('mapModal').classList.add('active'); setTimeout(()=>map.invalidateSize(),50);});
+document.getElementById('closeMapBtn').addEventListener('click',()=>document.getElementById('mapModal').classList.remove('active'));
+document.getElementById('refreshDataBtn').addEventListener('click',async()=>{data=await load(); markers(data);});
+document.getElementById('loginForm').addEventListener('submit',async(e)=>{e.preventDefault(); document.getElementById('loginPage').classList.remove('active'); document.getElementById('homePage').classList.add('active'); initMap(); data=await load(); markers(data);});
