@@ -1,0 +1,11 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1ED6FF"/>
+      <stop offset="100%" stop-color="#0E9EC0"/>
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="246" fill="#0E1118" stroke="#1ED6FF" stroke-width="8"/>
+  <path d="M240 92C202 140 172 180 172 237C172 284 210 324 257 324C304 324 342 286 342 239C342 185 312 145 277 109C294 151 284 193 251 225C258 178 251 129 240 92Z" fill="url(#g)"/>
+  <text x="256" y="382" text-anchor="middle" fill="#F5F7FA" font-size="58" font-family="Arial" font-weight="700">HYDROUS TECH</text>
+</svg>
