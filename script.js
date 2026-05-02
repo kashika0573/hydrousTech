@@ -1,5 +1,4 @@
-const DATASET_URL = "https://scoringapi.h2ohackathon.org/Challenge/json";
-const fallbackLocations = [
+const locations = [
   { name: "Tracy, CA", lat: 37.7397, lng: -121.4252, snowpack: 0.35, rainfall: 0.38, reservoir: 0.42, temp: 89 },
   { name: "Sacramento, CA", lat: 38.5816, lng: -121.4944, snowpack: 0.55, rainfall: 0.52, reservoir: 0.61, temp: 84 },
   { name: "Fresno, CA", lat: 36.7378, lng: -119.7871, snowpack: 0.28, rainfall: 0.31, reservoir: 0.45, temp: 95 },
@@ -9,12 +8,6 @@ const fallbackLocations = [
 
 const weights = { snowpack: 0.3, rainfall: 0.3, reservoir: 0.4 };
 let selectedLocation = null;
-
-function normalizePercent(value, fallback = 0.5) {
-  if (value == null || Number.isNaN(Number(value))) return fallback;
-  const n = Number(value);
-  return n > 1 ? Math.max(0, Math.min(1, n / 100)) : Math.max(0, Math.min(1, n));
-}
 
 function calcWai(d) {
   return Math.round((d.snowpack * weights.snowpack + d.rainfall * weights.rainfall + d.reservoir * weights.reservoir) * 100);
@@ -37,63 +30,30 @@ function riskLabel(wai) {
   return "Critical";
 }
 
-function adaptRecord(raw, index) {
-  const lat = Number(raw.lat ?? raw.latitude ?? raw.Latitude ?? raw.y);
-  const lng = Number(raw.lng ?? raw.lon ?? raw.long ?? raw.longitude ?? raw.Longitude ?? raw.x);
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-
-  return {
-    name: raw.name ?? raw.location ?? raw.county ?? raw.city ?? `Location ${index + 1}`,
-    lat,
-    lng,
-    snowpack: normalizePercent(raw.snowpack ?? raw.snow ?? raw.swe),
-    rainfall: normalizePercent(raw.rainfall ?? raw.precip ?? raw.precipitation),
-    reservoir: normalizePercent(raw.reservoir ?? raw.reservoir_level ?? raw.storage),
-    temp: Number(raw.temp ?? raw.temperature ?? 85)
-  };
-}
-
-async function loadLocations() {
-  try {
-    const response = await fetch(DATASET_URL);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const payload = await response.json();
-    const arr = Array.isArray(payload) ? payload : (Array.isArray(payload.data) ? payload.data : []);
-    const normalized = arr.map(adaptRecord).filter(Boolean);
-    if (!normalized.length) throw new Error("No mappable records in API payload");
-    return normalized;
-  } catch (error) {
-    addBotMessage(`Live dataset unavailable right now (${error.message}). Showing fallback map data.`);
-    return fallbackLocations;
-  }
-}
-
 const map = L.map("map").setView([37.25, -120.4], 6);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 18,
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-function renderMarkers(locations) {
-  locations.forEach((loc) => {
-    const wai = calcWai(loc);
-    const color = wai >= 70 ? "#31d96d" : wai >= 40 ? "#f7d74b" : "#ef5f5f";
-    const marker = L.circleMarker([loc.lat, loc.lng], {
-      radius: 10,
-      color,
-      fillColor: color,
-      fillOpacity: 0.92
-    }).addTo(map);
+locations.forEach((loc) => {
+  const wai = calcWai(loc);
+  const color = wai >= 70 ? "#31d96d" : wai >= 40 ? "#f7d74b" : "#ef5f5f";
+  const marker = L.circleMarker([loc.lat, loc.lng], {
+    radius: 10,
+    color,
+    fillColor: color,
+    fillOpacity: 0.92
+  }).addTo(map);
 
-    marker.bindTooltip(`${loc.name} • WAI ${wai}`, { direction: "top" });
+  marker.bindTooltip(`${loc.name} • WAI ${wai}`, { direction: "top" });
 
-    marker.on("click", () => {
-      selectedLocation = { ...loc, wai, prediction: predictWai(wai) };
-      renderLocation();
-      addBotMessage(`${loc.name} selected. Ask me for explanation, advice, or health risk details.`);
-    });
+  marker.on("click", () => {
+    selectedLocation = { ...loc, wai, prediction: predictWai(wai) };
+    renderLocation();
+    addBotMessage(`${loc.name} selected. Ask me for explanation, advice, or health risk details.`);
   });
-}
+});
 
 function renderLocation() {
   const card = document.getElementById("locationCard");
@@ -156,14 +116,3 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
   const name = document.getElementById("nameInput").value;
   addBotMessage(`Welcome ${name}. Select a location on the map to begin.`);
 });
-
-const mapModal = document.getElementById("mapModal");
-document.getElementById("openMapBtn").addEventListener("click", () => {
-  mapModal.classList.add("active");
-  setTimeout(() => map.invalidateSize(), 50);
-});
-document.getElementById("closeMapBtn").addEventListener("click", () => {
-  mapModal.classList.remove("active");
-});
-
-loadLocations().then(renderMarkers);
