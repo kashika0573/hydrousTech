@@ -1,0 +1,44 @@
+:root {
+  --bg: #050a12;
+  --panel: #0c1728;
+  --panel-2: #111f36;
+  --accent: #1ec8ef;
+  --accent-2: #10a9d4;
+  --text: #e7f6ff;
+  --muted: #98b3c9;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Inter, Arial, sans-serif;
+  background: radial-gradient(circle at top, #10223b 0%, var(--bg) 55%);
+  color: var(--text);
+}
+.overlay { display: none; position: fixed; inset: 0; background: rgba(2,8,15,0.9); z-index: 30; }
+.overlay.active { display: grid; place-items: center; }
+.login-card { width: min(420px, 92vw); background: #0b111d; border: 1px solid #1b8ca7; border-radius: 18px; padding: 28px; box-shadow: 0 24px 48px rgba(0,0,0,.4); }
+.login-logo { width: 96px; display: block; margin: 0 auto 12px; }
+.login-card h1, .login-card p { text-align: center; margin: 0 0 8px; }
+form { display: grid; gap: 10px; }
+input, button { border-radius: 10px; border: 1px solid #2a3e5f; padding: 12px; }
+input { background: #0d1b2f; color: var(--text); }
+button { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #03222d; font-weight: 700; cursor: pointer; }
+.app-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid #19324a; }
+.app-header h2 { margin: 0; font-size: 1.7rem; }
+.app-header p { margin: 4px 0 0; color: var(--muted); }
+.header-logo { width: 74px; height: 74px; }
+.layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 14px; padding: 14px; }
+.card, .map-panel { background: linear-gradient(160deg, var(--panel) 0%, var(--panel-2) 100%); border: 1px solid #1d3652; border-radius: 14px; padding: 14px; }
+#map { height: 620px; border-radius: 12px; overflow: hidden; }
+.info-panel { display: grid; gap: 12px; align-content: start; }
+.chat-log { height: 260px; overflow-y: auto; background: #0a1426; border: 1px solid #1b2f4a; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+.chat-message { margin: 8px 0; }
+.chat-message.user { color: #99efff; }
+.chat-message.bot { color: #d8ecff; }
+.wai-safe { color: #57e47f; }
+.wai-warning { color: #ffe066; }
+.wai-critical { color: #ff7f7f; }
+@media (max-width: 980px) {
+  .layout { grid-template-columns: 1fr; }
+  #map { height: 420px; }
+}
