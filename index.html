@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hydrous Tech</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="loginScreen" class="overlay active" aria-modal="true">
+    <div class="login-card">
+      <img src="assets/logo.svg" alt="Hydrous Tech logo" class="login-logo" />
+      <h1>Hydrous Tech</h1>
+      <p>Predict. Visualize. Protect.</p>
+      <form id="loginForm">
+        <label for="nameInput">Name</label>
+        <input id="nameInput" type="text" placeholder="Enter your name" required />
+        <label for="locationInput">Primary Area</label>
+        <input id="locationInput" type="text" placeholder="e.g., Tracy, CA" required />
+        <button type="submit">Enter Dashboard</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="mapModal" class="overlay" aria-modal="true">
+    <div class="map-modal-card">
+      <div class="map-modal-header">
+        <h3>Regional Water Map</h3>
+        <button id="closeMapBtn" type="button">Close Map</button>
+      </div>
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <header class="app-header">
+    <div>
+      <h2>Hydrous Tech</h2>
+      <p>Water Availability Intelligence Dashboard</p>
+    </div>
+    <img src="assets/logo.svg" alt="Hydrous Tech logo" class="header-logo" />
+  </header>
+
+  <main class="layout">
+    <section class="card actions-panel">
+      <h3>Quick Actions</h3>
+      <p>Open the full map in a separate panel so it does not block the rest of your dashboard.</p>
+      <button id="openMapBtn" type="button">Open Map</button>
+    </section>
+
+    <section class="info-panel">
+      <div class="card" id="locationCard">
+        <h3>Location Insights</h3>
+        <p>Click <strong>Open Map</strong>, then select a marker to view WAI details and prediction.</p>
+      </div>
+      <div class="card" id="chatbotCard">
+        <h3>Hydrous Assistant</h3>
+        <div id="chatLog" class="chat-log"></div>
+        <form id="chatForm" class="chat-form">
+          <input id="chatInput" type="text" placeholder="Ask: Why is my area red?" required />
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="script.js"></script>
+</body>
+</html>
