@@ -24,4 +24,4 @@ document.getElementById('helpBtn').addEventListener('click',()=>setPage('help'))
 document.getElementById('openMapBtn').addEventListener('click',()=>{ if(!map) initMap(); document.getElementById('mapModal').classList.add('active'); setTimeout(()=>map.invalidateSize(),50);});
 document.getElementById('closeMapBtn').addEventListener('click',()=>document.getElementById('mapModal').classList.remove('active'));
 document.getElementById('refreshDataBtn').addEventListener('click',async()=>{data=await load(); markers(data);});
-(async()=>{ initMap(); data=await load(); markers(data); })();
+document.getElementById('loginForm').addEventListener('submit',async(e)=>{e.preventDefault(); document.getElementById('loginPage').classList.remove('active'); document.getElementById('homePage').classList.add('active'); initMap(); data=await load(); markers(data);});

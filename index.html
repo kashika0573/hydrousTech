@@ -1,5 +1,11 @@
 <!doctype html><html lang='en'><head><meta charset='UTF-8'/><meta name='viewport' content='width=device-width, initial-scale=1.0'/><title>Hydrous Tech</title><link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'/><link rel='stylesheet' href='styles.css'/></head><body>
-<section id='homePage' class='page-screen active'>
+<section id='loginPage' class='page-screen active'>
+  <div class='login-card'><img src='assets/logo.svg' class='login-logo'/><h1>Hydrous Tech</h1><p>Predict. Visualize. Protect.</p>
+    <form id='loginForm'><label>Name</label><input id='nameInput' required/><label>Primary Area</label><select id='locationInput' required><option value=''>Select location</option><option>Tracy, CA</option><option>Sacramento, CA</option><option>Fresno, CA</option><option>Bakersfield, CA</option><option>San Jose, CA</option></select><button type='submit'>Go to Homepage</button></form>
+  </div>
+</section>
+
+<section id='homePage' class='page-screen'>
   <div id='mapModal' class='overlay'><div class='map-modal-card'><div class='map-modal-header'><h3>Regional Water Map</h3><button id='closeMapBtn'>Close Map</button></div><div id='map'></div></div></div>
   <header class='app-header'><button id='helpBtn' class='help-btn'>How can I help?</button><div><h2>Hydrous Tech</h2><p>Water Availability Intelligence Dashboard</p></div><img src='assets/logo.svg' class='header-logo'/></header>
   <nav class='tabs'><button class='tab-btn active' data-page='overview'>Overview</button><button class='tab-btn' data-page='past'>Past</button><button class='tab-btn' data-page='present'>Present</button><button class='tab-btn' data-page='future'>Future</button><button class='tab-btn' data-page='help'>Help Center</button></nav>
