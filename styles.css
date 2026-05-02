@@ -16,9 +16,7 @@ body {
 }
 .overlay { display: none; position: fixed; inset: 0; background: rgba(2,8,15,0.9); z-index: 30; }
 .overlay.active { display: grid; place-items: center; }
-.login-card, .map-modal-card { width: min(420px, 92vw); background: #0b111d; border: 1px solid #1b8ca7; border-radius: 18px; padding: 28px; box-shadow: 0 24px 48px rgba(0,0,0,.4); }
-.map-modal-card { width: min(1100px, 94vw); }
-.map-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.login-card { width: min(420px, 92vw); background: #0b111d; border: 1px solid #1b8ca7; border-radius: 18px; padding: 28px; box-shadow: 0 24px 48px rgba(0,0,0,.4); }
 .login-logo { width: 96px; display: block; margin: 0 auto 12px; }
 .login-card h1, .login-card p { text-align: center; margin: 0 0 8px; }
 form { display: grid; gap: 10px; }
@@ -29,8 +27,8 @@ button { background: linear-gradient(90deg, var(--accent), var(--accent-2)); col
 .app-header h2 { margin: 0; font-size: 1.7rem; }
 .app-header p { margin: 4px 0 0; color: var(--muted); }
 .header-logo { width: 74px; height: 74px; }
-.layout { display: grid; grid-template-columns: 1fr 1.4fr; gap: 14px; padding: 14px; }
-.card { background: linear-gradient(160deg, var(--panel) 0%, var(--panel-2) 100%); border: 1px solid #1d3652; border-radius: 14px; padding: 14px; }
+.layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 14px; padding: 14px; }
+.card, .map-panel { background: linear-gradient(160deg, var(--panel) 0%, var(--panel-2) 100%); border: 1px solid #1d3652; border-radius: 14px; padding: 14px; }
 #map { height: 620px; border-radius: 12px; overflow: hidden; }
 .info-panel { display: grid; gap: 12px; align-content: start; }
 .chat-log { height: 260px; overflow-y: auto; background: #0a1426; border: 1px solid #1b2f4a; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
